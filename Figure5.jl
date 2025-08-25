@@ -166,7 +166,7 @@ ax.text(x_Inj + offset, y_Inj + offset, "Injection", color="white", fontsize=14,
 
 ax[:tick_params](axis="both", which="major", labelsize=14)
 display(fig)
-fig.savefig("Permeability.pdf", dpi=600)
+fig.savefig("Figure5a.pdf", dpi=600)
 PyPlot.close(fig)
 
 
@@ -191,6 +191,6 @@ cb.ax.tick_params(labelsize=12)  # Adjust 12 to your desired font size
 cb.set_label("Pressure (MPa)", fontsize=14)
 ax[:tick_params](axis="both", which="major", labelsize=14)
 display(fig)
-fig.savefig("PressureContour.pdf", dpi=600)
+fig.savefig("Figure5b.pdf", dpi=600)
 PyPlot.close(fig)
 

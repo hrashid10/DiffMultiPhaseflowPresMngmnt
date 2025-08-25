@@ -82,6 +82,6 @@ fig.add_artist(con2)
 
 # Display plot
 display(fig)
-fig.savefig("trainingErrors.pdf", dpi=1200)
+fig.savefig("Figure4.pdf", dpi=1200)
 PyPlot.close(fig)
 

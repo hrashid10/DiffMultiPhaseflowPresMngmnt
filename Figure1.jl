@@ -15,14 +15,15 @@ using Flux
 import PyPlot
 
 using Statistics: mean, std
-@everywhere using BSON
-@everywhere using Flux
+using BSON
+using Flux
 include("twoPhase.jl")
 # Load the model back
 
 
 # using BSON
- @BSON.load "mytrained_model_FinalTrainMPILD.bson" model
+@BSON.load "mytrained_model_FinalTrainMPILD.bson" model
+
 
 
 using Random
@@ -185,7 +186,7 @@ cb.ax.tick_params(labelsize=12)  # Adjust 12 to your desired font size
 cb.set_label("Saturation ", fontsize=14)
 ax[:tick_params](axis="both", which="major", labelsize=14)
 display(fig)
-fig.savefig("SaturationContour.pdf", dpi=600)
+fig.savefig("Figure1.pdf", dpi=600)
 PyPlot.close(fig)
 
 

@@ -35,6 +35,6 @@ ax.legend(loc="upper left", bbox_to_anchor=(0.05, 0.95), borderaxespad=0.)
 ax.tick_params(labelsize=12)
 # Display plot
 display(fig)
-fig.savefig("trainingErrorsInitial.pdf", dpi=1200)
+fig.savefig("Figure3.pdf", dpi=1200)
 PyPlot.close(fig)
 

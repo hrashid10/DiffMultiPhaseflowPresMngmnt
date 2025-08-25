@@ -129,7 +129,7 @@ ax.set_ylabel("Frequency", fontsize=15, fontname="Arial")
 for lbl in ax.get_xticklabels();  lbl.set_fontname("Arial"); lbl.set_fontsize(15); end
 for lbl in ax.get_yticklabels();  lbl.set_fontname("Arial");  lbl.set_fontsize(15); end
 display(fig)
-fig.savefig("PressureManagementPredictionPressure.pdf", dpi=1200)
+fig.savefig("Figure6a.pdf", dpi=1200)
 close(fig)
 
 
@@ -157,7 +157,7 @@ for lbl in ax.get_yticklabels();  lbl.set_fontname("Arial");  lbl.set_fontsize(1
 ax.legend(loc="upper left",fontsize=12)
 
 display(fig)
-fig.savefig("PressureManagementPredictionExrates.pdf", dpi=1200)
+fig.savefig("Figure6b.pdf", dpi=1200)
 close(fig)
 
 
