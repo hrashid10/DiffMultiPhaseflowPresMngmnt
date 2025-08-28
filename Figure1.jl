@@ -1,34 +1,15 @@
-#This example trains a neural network to manage the pressure in an underground reservoir.
-#The ML model gets to control the pumping rate at an extraction well.
-#It's goal is to manage the pressure at a critical location so the pressure increase caused by a fixed injection at another well is mitigated by the extraction.
-#It uses a subsurface flow model in the loop to train a convolutional neural network to predict the extraction rate given a permeability field.
-using ChainRulesCore: length
+#HR edit
 import DPFEHM
 import GaussianRandomFields
-import Optim
 import Random
 import BSON
-import Zygote
-import ChainRulesCore
-using Distributed
-using Flux
 import PyPlot
-
-using Statistics: mean, std
-using BSON
-using Flux
-include("twoPhase.jl")
-# Load the model back
-
-
-# using BSON
-@BSON.load "mytrained_model_FinalTrainMPILD.bson" model
+import Flux
 
 
 
-using Random
-using GaussianRandomFields
-using DPFEHM
+@BSON.load "mytrained_model_Finetuned.bson" model
+
 
 mutable struct Fluid_n
     vw::Float64
@@ -36,9 +17,7 @@ mutable struct Fluid_n
     swc::Float64
     sor::Float64
 end
-
 Random.seed!(11) #for paper plots
-
 Qinj = 0.031688 # [m^3/s] (1 MMT water/yr)
 n = 26
 ns = [n, n]
@@ -67,17 +46,9 @@ fluid=Fluid_n(1.0, 1.0, 0.0, 0.0)
 S0=zeros(size(coords, 2))
 
 nt = 45;  dt =4*24*60*60;
-
 monitoring_well_node = 190
 injection_extraction_nodes = [271, 487]
 
-
-# for i = 1:size(coords, 2)
-#     if abs(coords[1, i]) == sidelength || abs(coords[2, i]) == sidelength
-#         push!(dirichletnodes, i)
-#         dirichleths[i] = steadyhead
-#     end
-# end
 
 function getQs(Qs::Vector, is::Vector)
     sum(Qs .* ((collect(1:size(coords, 2)) .== i) for i in is))
@@ -88,7 +59,7 @@ function solve_numerical(Qs, T)
     everystep=false # output all the time steps
     Ts=exp.(reshape(T,size(Qs)))
     args=h0, S0, Ts, dirichleths,  dirichletnodes, Qs, volumes, areasoverlengths, fluid, dt, neighbors, nt, everystep
-    h_gw_t, S= solvetwophase(args...)
+    h_gw_t, S= DPFEHM.solvetwophase(args...)
     push!(pressure_vals, h_gw_t[monitoring_well_node] - steadyhead)
     push!(extraction_rates, Qs[injection_extraction_nodes[1]])
     return h_gw_t[monitoring_well_node] - steadyhead
@@ -103,12 +74,11 @@ Qs = zeros(size(coords, 2))
 Qs[injection_extraction_nodes[1]]=Q1[1] 
 Qs[injection_extraction_nodes[2]]=Qinj
 args=h0, S0, Ts, dirichleths,  dirichletnodes, Qs, volumes, areasoverlengths, fluid, dt, neighbors, nt, everystep
-@time h_gw_t, S= solvetwophase(args...)
+@time h_gw_t, S= DPFEHM.solvetwophase(args...)
 @show h_gw_t[monitoring_well_node]
 
 
 #plotting
-
 
 xmin, xmax = -sidelength, sidelength
 ymin, ymax = -sidelength, sidelength

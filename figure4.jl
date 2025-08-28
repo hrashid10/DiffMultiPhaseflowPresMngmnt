@@ -1,13 +1,14 @@
-using DataFrames
-using CSV
+import DataFrames
+import CSV
+import PyCall
+import PyPlot
 
-df = CSV.read("figure4.csv", DataFrame)
-using PyPlot
-using PyCall
-@pyimport matplotlib.patches as mpatches
-@pyimport matplotlib.transforms as mtransforms
+df = CSV.read("figure4.csv", DataFrames.DataFrame)
 
-fig, ax = subplots(dpi=1200)
+@PyCall.pyimport matplotlib.patches as mpatches
+@PyCall.pyimport matplotlib.transforms as mtransforms
+
+fig, ax = PyPlot.subplots(dpi=1200)
 range1=1:4000
 range2=4001:4200
 # Plot data

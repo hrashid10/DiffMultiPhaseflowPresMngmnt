@@ -1,26 +1,62 @@
-using ChainRulesCore: length
+#HR edit
 import DPFEHM
 import GaussianRandomFields
-import Optim
 import Random
 import BSON
-import Zygote
-import ChainRulesCore
-using Distributed
-using Flux
-import Statistics
 import PyPlot
-using LaTeXStrings
-using PyPlot
-using StatsBase
-using Statistics: mean, std
-using BSON
-using Random
-using GaussianRandomFields
-using DPFEHM
+import StatsBase
+import Flux
+import LaTeXStrings
 
-# #............................................comment if "model_prediction_final.bson" is available.................
-# include("twoPhase.jl")
+
+# Pressure histogram
+dict=BSON.load("model_prediction_final.bson")
+data1=dict[:pressure_vals]
+data2=dict[:extraction_rates]
+
+fig, ax = PyPlot.subplots(dpi=1200)
+ax.hist(data1; bins=250, edgecolor="black", facecolor="darkblue")
+PyPlot.xlim(-0.005, 0.005)
+ax.set_xlabel("Pressure at the critical location, MPa",
+               fontsize=15, fontname="Arial")
+ax.set_ylabel("Frequency", fontsize=15, fontname="Arial")
+# Tick labels
+for lbl in ax.get_xticklabels();  lbl.set_fontname("Arial"); lbl.set_fontsize(15); end
+for lbl in ax.get_yticklabels();  lbl.set_fontname("Arial");  lbl.set_fontsize(15); end
+display(fig)
+fig.savefig("Figure6a.pdf", dpi=1200)
+close(fig)
+
+
+#Extraction-rate histogram
+
+fig, ax = PyPlot.subplots( dpi=1200)
+ax.hist(data2; bins=250, edgecolor="black", facecolor="darkblue")
+PyPlot.xlim(-0.03, 0.01)
+p50 = StatsBase.percentile(data2, 50)
+p10 = StatsBase.percentile(data2, 10)
+ax.axvline(p50, color="green", linestyle="--", label="50th percentile (median)")
+ax.axvline(p10, color="red", linestyle="--", label="10th percentile")
+ax[:set_xlabel](
+    LaTeXStrings.L"Extraction rates, $m^3\,/\,\mathrm{s}$",
+    fontsize=15,
+    fontname="Arial"
+)
+ax.set_ylabel("Frequency", fontsize=15, fontname="Arial")
+
+ticks = collect(-0.03:0.01:0.01)
+ax.set_xticks(ticks)
+
+for lbl in ax.get_xticklabels();  lbl.set_fontname("Arial");  lbl.set_fontsize(15); end
+for lbl in ax.get_yticklabels();  lbl.set_fontname("Arial");  lbl.set_fontsize(15); end
+ax.legend(loc="upper left",fontsize=12)
+
+display(fig)
+fig.savefig("Figure6b.pdf", dpi=1200)
+close(fig)
+
+
+# #............................................use it "model_prediction_final.bson" is not available.................
 # @BSON.load "mytrained_model_FinalTrainMPILD.bson" model
 
 
@@ -95,7 +131,7 @@ using DPFEHM
 #     Qs[injection_extraction_nodes[1]]=Q1[1] 
 #     Qs[injection_extraction_nodes[2]]=Qinj
 #     args=h0, S0, Ts, dirichleths,  dirichletnodes, Qs, volumes, areasoverlengths, fluid, dt, neighbors, nt, everystep
-#     h_gw_t, S= solvetwophase(args...)
+#     h_gw_t, S= DPFEHM.solvetwophase(args...)
 
 #     push!(pressure_vals, h_gw_t[monitoring_well_node] - steadyhead)
 #     push!(extraction_rates, Qs[injection_extraction_nodes[1]])
@@ -108,56 +144,6 @@ using DPFEHM
 # data2=extraction_rates
 # @BSON.save "model_prediction_final.bson"  pressure_vals extraction_rates
 
-#............................................comment if "model_prediction_final.bson" is available.................
-
-
-
-
-
-# Pressure histogram
-dict=BSON.load("model_prediction_final.bson")
-data1=dict[:pressure_vals]
-data2=dict[:extraction_rates]
-
-fig, ax = subplots(dpi=1200)
-ax.hist(data1; bins=250, edgecolor="black", facecolor="darkblue")
-xlim(-0.005, 0.005)
-ax.set_xlabel("Pressure at the critical location, MPa",
-               fontsize=15, fontname="Arial")
-ax.set_ylabel("Frequency", fontsize=15, fontname="Arial")
-# Tick labels
-for lbl in ax.get_xticklabels();  lbl.set_fontname("Arial"); lbl.set_fontsize(15); end
-for lbl in ax.get_yticklabels();  lbl.set_fontname("Arial");  lbl.set_fontsize(15); end
-display(fig)
-fig.savefig("Figure6a.pdf", dpi=1200)
-close(fig)
-
-
-# ---- Extraction-rate histogram ----
-
-fig, ax = subplots( dpi=1200)
-ax.hist(data2; bins=250, edgecolor="black", facecolor="darkblue")
-xlim(-0.03, 0.01)
-p50 = percentile(data2, 50)
-p10 = percentile(data2, 10)
-ax.axvline(p50, color="green", linestyle="--", label="50th percentile (median)")
-ax.axvline(p10, color="red", linestyle="--", label="10th percentile")
-ax[:set_xlabel](
-    L"Extraction rates, $m^3\,/\,\mathrm{s}$",
-    fontsize=15,
-    fontname="Arial"
-)
-ax.set_ylabel("Frequency", fontsize=15, fontname="Arial")
-
-ticks = collect(-0.03:0.01:0.01)
-ax.set_xticks(ticks)
-
-for lbl in ax.get_xticklabels();  lbl.set_fontname("Arial");  lbl.set_fontsize(15); end
-for lbl in ax.get_yticklabels();  lbl.set_fontname("Arial");  lbl.set_fontsize(15); end
-ax.legend(loc="upper left",fontsize=12)
-
-display(fig)
-fig.savefig("Figure6b.pdf", dpi=1200)
-close(fig)
+##............................................use if "model_prediction_final.bson" is not available.................
 
 

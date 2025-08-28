@@ -1,28 +1,12 @@
-#This example trains a neural network to manage the pressure in an underground reservoir.
-#The ML model gets to control the pumping rate at an extraction well.
-#It's goal is to manage the pressure at a critical location so the pressure increase caused by a fixed injection at another well is mitigated by the extraction.
-#It uses a subsurface flow model in the loop to train a convolutional neural network to predict the extraction rate given a permeability field.
-using ChainRulesCore: length
 import DPFEHM
 import GaussianRandomFields
-import Optim
 import Random
 import BSON
-import Zygote
-using Distributed
-using Flux
 import PyPlot
-# using JLD2
+import Flux
 
-using Statistics: mean, std
-using BSON
-using Flux
-using Random
-using GaussianRandomFields
-using DPFEHM
 
-include("twoPhase.jl")
-@BSON.load "mytrained_model_FinalTrainMPILD.bson" model
+@BSON.load "mytrained_model_Finetuned.bson" model
 
 mutable struct Fluid_n
     vw::Float64
@@ -82,7 +66,7 @@ function solve_numerical(Qs, T)
     everystep=false # output all the time steps
     Ts=exp.(reshape(T,size(Qs)))
     args=h0, S0, Ts, dirichleths,  dirichletnodes, Qs, volumes, areasoverlengths, fluid, dt, neighbors, nt, everystep
-    h_gw_t, S= solvetwophase(args...)
+    h_gw_t, S= DPFEHM.solvetwophase(args...)
     push!(pressure_vals, h_gw_t[monitoring_well_node] - steadyhead)
     push!(extraction_rates, Qs[injection_extraction_nodes[1]])
     return h_gw_t[monitoring_well_node] - steadyhead
@@ -97,7 +81,7 @@ Qs = zeros(size(coords, 2))
 Qs[injection_extraction_nodes[1]]=Q1[1] 
 Qs[injection_extraction_nodes[2]]=Qinj
 args=h0, S0, Ts, dirichleths,  dirichletnodes, Qs, volumes, areasoverlengths, fluid, dt, neighbors, nt, everystep
-@time h_gw_t, S= solvetwophase(args...)
+@time h_gw_t, S= DPFEHM.solvetwophase(args...)
 @show h_gw_t[monitoring_well_node]
 
 

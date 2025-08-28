@@ -1,13 +1,15 @@
-using DataFrames
-using CSV
+import DataFrames
+import CSV
+import PyCall
+import PyPlot
 
-df = CSV.read("figure3.csv", DataFrame)
-using PyPlot
-using PyCall
-@pyimport matplotlib.patches as mpatches
-@pyimport matplotlib.transforms as mtransforms
+df = CSV.read("figure3.csv", DataFrames.DataFrame)
 
-fig, ax = subplots(dpi=1200)
+
+@PyCall.pyimport matplotlib.patches as mpatches
+@PyCall.pyimport matplotlib.transforms as mtransforms
+
+fig, ax = PyPlot.subplots(dpi=1200)
 
 # Plot data
 ax.plot(df.Epoch, df.Validation_errors, label="Validation errors", color="blue")
