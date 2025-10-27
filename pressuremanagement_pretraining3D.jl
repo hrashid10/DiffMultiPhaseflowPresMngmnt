@@ -23,7 +23,7 @@ steadyhead = 0e0
 sidelength = 500
 thickness  = 1.0
 mins = [-sidelength, -sidelength, 0] #meters
-maxs = [sidelength, sidelength, 3] #meters
+maxs = [sidelength, sidelength, 6] #meters
 num_eigenvectors = 200
 sigma = 1.0
 lambda = 50
@@ -37,8 +37,8 @@ learning_rate = 1e-4
 coords, neighbors, areasoverlengths, volumes=DPFEHM.regulargrid3d(mins, maxs, ns);#build the grid
 dirichletnodes = Int[]
 dirichleths = zeros(size(coords, 2))
-monitoring_well_nodes = [190*3 200*3]
-injection_extraction_nodes = [271*3, 280*3, 487*3, 475*3]
+monitoring_well_nodes = [201*3-1 189*3-1]
+injection_extraction_nodes = [267*3-1, 279*3-1, 487*3-1, 475*3-1]
 
 
 for i = 1:size(coords, 2)
@@ -186,13 +186,13 @@ end
 # opt = ADAM(learning_rate)
 opt_state = Flux.setup(Flux.Adam(learning_rate), model)  
 # Training epochs
-epochs = 1:500
-batch_size = 40
+epochs = 1:6000
+batch_size = 10
 
 
 
-data_train_batch = [[(repeat(reshape(GaussianRandomFields.sample(grf)', 1, ns[2], ns[1]), ns[3], 1, 1), pressure_target) for i = 1:batch_size] for v in 1:200/batch_size]
-data_test = [[(repeat(reshape(GaussianRandomFields.sample(grf)', 1, ns[2], ns[1]), ns[3], 1, 1), pressure_target) for i = 1:batch_size] for i = 1:200/batch_size]
+data_train_batch = [[(repeat(reshape(GaussianRandomFields.sample(grf)', 1, ns[2], ns[1]), ns[3], 1, 1), pressure_target) for i = 1:batch_size] for v in 1:100/batch_size]
+data_test = [[(repeat(reshape(GaussianRandomFields.sample(grf)', 1, ns[2], ns[1]), ns[3], 1, 1), pressure_target) for i = 1:batch_size] for i = 1:100/batch_size]
 println("The training has started..")
 loss_train = sum(map(x->loss(model,x), data_train_batch))
 rmse_train = sqrt(loss_train/(batch_size *length(data_train_batch)))
@@ -204,7 +204,7 @@ push!(rmses_test_pt, rmse_test)
 push!(rmses_train_pt, rmse_train)
 
 for epoch in epochs
-    data_train_batch = [[(repeat(reshape(GaussianRandomFields.sample(grf)', 1, ns[2], ns[1]), ns[3], 1, 1), pressure_target) for i = 1:batch_size] for v in 1:200/batch_size]
+    data_train_batch = [[(repeat(reshape(GaussianRandomFields.sample(grf)', 1, ns[2], ns[1]), ns[3], 1, 1), pressure_target) for i = 1:batch_size] for v in 1:100/batch_size]
     tt = @elapsed Flux.train!(loss, model, data_train_batch, opt_state)
     push!(train_time_pt, tt)
     loss_train = sum(map(x->loss(model,x), data_train_batch))
